@@ -3,12 +3,24 @@ import java.util.List;
 public class JSONFormatter {
 
     private ReadCSV readCSV = new ReadCSV();
-    private List<Patient> patientList = readCSV.CSVtoList();
-    private List<String> headerList = readCSV.getHeadersToList();
-    private StringBuilder singleSB = new StringBuilder();
+    private List<Patient> patientList;
+    private List<String> headerList;
+    private StringBuilder singleSBbyID = new StringBuilder();
+    private StringBuilder singleSBbyName = new StringBuilder();
     private StringBuilder allSB = new StringBuilder();
 
-    public StringBuilder singlePatientJSON(String ID){
+    // Read an input file and generate Patient objects
+    private List<Patient> readFile(String filepath){
+        return readCSV.CSVtoList(filepath);
+    }
+
+    // Constructor that links file info to patientList and headerList
+    public JSONFormatter(String filepath){
+        patientList = this.readFile(filepath);
+        headerList = this.readCSV.getHeadersToList(filepath);
+    }
+
+    public StringBuilder singlePatientJSONbyID(String ID){
         // Traverse the list and find matchedPatient
         Patient matchedPatient = null;
         for (Patient patient : patientList){
@@ -18,22 +30,52 @@ public class JSONFormatter {
             }
         }
         // Start of the JSON Format
-        singleSB.append("{\n");
-        singleSB.append("\t\"patient\": {\n");
+        singleSBbyID.append("{\n");
+        singleSBbyID.append("\t\"patient\": {\n");
 
         boolean first = false;
         for (String head : headerList){
-            if (first){singleSB.append(",\n");}
+            if (first){
+                singleSBbyID.append(",\n");}
             first = true;
 
-            singleSB.append("\t\t\""+ head +"\"" + ": " + "\"" + matchedPatient.getValueOf(head) + "\"");
+            singleSBbyID.append("\t\t\""+ head +"\"" + ": " + "\"" + matchedPatient.getValueOf(head) + "\"");
 
         }
 
-        singleSB.append("\n\t}");
-        singleSB.append("\n}");
+        singleSBbyID.append("\n\t}");
+        singleSBbyID.append("\n}");
 
-        return singleSB;
+        return singleSBbyID;
+    }
+
+    public StringBuilder singlePatientJSONbyName(String First, String Last){
+        Patient matchedPatient = null;
+        for (Patient patient : patientList){
+            if (patient.getFIRST().equals(First) && patient.getLAST().equals(Last)){
+                matchedPatient = patient;
+                break;
+            }
+        }
+        // Start JSON Format
+        singleSBbyName.append("{\n");
+        singleSBbyName.append("\t\"patient\": {\n");
+
+        boolean first = false;
+        for (String head : headerList){
+            if (first){
+                singleSBbyName.append(",\n");}
+            first = true;
+
+            singleSBbyName.append("\t\t\""+ head +"\"" + ": " + "\"" + matchedPatient.getValueOf(head) + "\"");
+        }
+
+        singleSBbyName.append("\n\t}");
+        singleSBbyName.append("\n}");
+
+        return singleSBbyName;
+
+
     }
 
 
