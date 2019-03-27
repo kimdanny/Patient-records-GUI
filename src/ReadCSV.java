@@ -9,9 +9,9 @@ public class ReadCSV {
 
     public ReadCSV(){}
 
-    public List<Patient> CSVtoList(){
+    public List<Patient> CSVtoList(String filepath){
         try {
-            Scanner scanner = new Scanner(new FileReader("/Users/toeun_kim/Comp04_oop_java/cw2/CW2_GUI/CW2_data/patients100.csv"));
+            Scanner scanner = new Scanner(new FileReader(filepath));
             String line;
             Patient patient;
 
@@ -59,9 +59,9 @@ public class ReadCSV {
 
 
 
-    protected List<String> getHeadersToList(){
+    protected List<String> getHeadersToList(String filepath){
         try {
-            Scanner scanner = new Scanner(new FileReader("/Users/toeun_kim/Comp04_oop_java/cw2/CW2_GUI/CW2_data/patients100.csv"));
+            Scanner scanner = new Scanner(new FileReader(filepath));
             // headers list
             String line = scanner.nextLine();
             String[] result = line.split("\\s*,\\s*", -1);
