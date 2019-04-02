@@ -3,8 +3,8 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
@@ -81,7 +81,7 @@ public class GUI extends JFrame {
     private JScrollPane textScroller;
 
     // constructor - main part of GUI
-    public GUI() {
+    public GUI() throws Exception {
         // initial Settings
         super("Patients GUI");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -232,7 +232,7 @@ public class GUI extends JFrame {
         textButtonPanel = new JPanel();
         createLoadButton();
         createSaveButton();
-        createCutButton();
+        createClearButton();
         createCopyButton();
         createPasteButton();
         textButtonPanel.add(loadButton);
@@ -256,7 +256,7 @@ public class GUI extends JFrame {
      * These methods should be included in create'X'ButtonPanel()
      */
     private void createLoadButton() {
-        loadButton = new JButton("Load CSV");
+        loadButton = new JButton("Load CSV/JSON");
         loadButton.addActionListener((ActionEvent e) -> loadFile());
     }
 
@@ -265,9 +265,9 @@ public class GUI extends JFrame {
         saveButton.addActionListener((ActionEvent e) -> saveFile());
     }
 
-    private void createCutButton() {
-        cutButton = new JButton("Cut text");
-        cutButton.addActionListener((ActionEvent e) -> cut());
+    private void createClearButton() {
+        cutButton = new JButton("Clear text");
+        cutButton.addActionListener((ActionEvent e) -> clear());
     }
 
     private void createCopyButton() {
@@ -315,13 +315,13 @@ public class GUI extends JFrame {
     /**
      * Controller
      * Below methods are responses for the action
+     * loadFile and saveFile methods are inspired by Dr.Graham Roberts' example code
      */
     private String loadFile()
     {
         JFileChooser fc = new JFileChooser();
         int returnVal = fc.showOpenDialog(this);
-        if (returnVal == JFileChooser.APPROVE_OPTION)
-        {
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
             File file = fc.getSelectedFile();
             try
             {
@@ -347,9 +347,14 @@ public class GUI extends JFrame {
             File file = fc.getSelectedFile();
             try
             {
-                textArea.write(new FileWriter(file));
+                StringBuilder allPatientJSON = model.getAllPatientJSON();
+                BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(file +".json"));
+                bufferedWriter.write(String.valueOf(allPatientJSON));
+                bufferedWriter.close();
+                JOptionPane.showMessageDialog(this, "All patients information has been saved in json format");
+
             }
-            catch (IOException exp)
+            catch (Exception exp)
             {
                 JOptionPane.showMessageDialog(this, "Unable to save the file", "File Error",
                         JOptionPane.ERROR_MESSAGE);
@@ -357,9 +362,8 @@ public class GUI extends JFrame {
         }
     }
 
-    private void cut() {
-        textArea.cut();
-        textArea.requestFocus();
+    private void clear() {
+        textArea.setText("");
     }
 
     private void copy() {
@@ -444,6 +448,7 @@ public class GUI extends JFrame {
             StringBuilder singlePatientJSONID =  model.getSinglePatientJSONbyID(selectedValue);
             // write singlePatientJSONID in textArea
             textArea.setText("");
+            // append allows users to compare two or more patients in the same textArea
             textArea.append(String.valueOf(singlePatientJSONID));
         }
 
@@ -456,6 +461,7 @@ public class GUI extends JFrame {
             StringBuilder singlePatientJSONName = model.getSinglePatientJSONbyName(firstName, lastName);
             // write singlePatientJSONName in textArea
             textArea.setText("");
+            // append allows users to compare two or more patients in the same textArea
             textArea.append(String.valueOf(singlePatientJSONName));
         }
 
@@ -475,7 +481,11 @@ public class GUI extends JFrame {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                new GUI();
+                try {
+                    new GUI();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         });
     }
