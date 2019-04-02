@@ -1,8 +1,10 @@
+import java.io.IOException;
 import java.util.List;
 
 public class JSONFormatter {
 
     private ReadCSV readCSV = new ReadCSV();
+    private ReadJSON readJSON = new ReadJSON();
     private List<Patient> patientList;
     private List<String> headerList;
     private StringBuilder singleSBbyID = new StringBuilder();
@@ -10,14 +12,17 @@ public class JSONFormatter {
     private StringBuilder allSB = new StringBuilder();
 
     // Read an input file and generate Patient objects
-    private List<Patient> readFile(String filepath){
+    private List<Patient> readCSVfile(String filepath){
         return readCSV.CSVtoList(filepath);
+    }
+    private List<Patient> readJSONfile(String filepate) throws Exception {
+            return readJSON.JSONtoList(filepate);
     }
 
     // Constructor that links file info to patientList and headerList
-    public JSONFormatter(String filepath){
-        patientList = this.readFile(filepath);
-        headerList = this.readCSV.getHeadersToList(filepath);
+    public JSONFormatter(String filepath) throws Exception {
+        patientList = (filepath.endsWith(".csv")) ? this.readCSVfile(filepath) : this.readJSONfile(filepath);
+        headerList = (filepath.endsWith(".csv")) ? this.readCSV.getHeadersToList(filepath) : this.readJSON.getHeadersToList(filepath);
     }
 
     public StringBuilder singlePatientJSONbyID(String ID){
